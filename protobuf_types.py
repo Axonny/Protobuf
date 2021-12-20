@@ -17,21 +17,34 @@ class VarintSerializer(Serializer):
     wire_type = 0
 
     @classmethod
+    def get_bytes(cls, value):
+        return bin(value)[2:]
+
+    @classmethod
     def dump(cls, value: int) -> bytes:
-        b = bin(value)[2:]
+        b = cls.get_bytes(value=value)
         count_zeros = (7 - len(b) % 7) % 7
         b = "0" * count_zeros + b
-        _bytes = ["1" + b[i:i+7] for i in range(0, len(b), 7)]
+        _bytes = ["1" + b[i:i + 7] for i in range(0, len(b), 7)]
         _bytes = _bytes[::-1]
         _bytes[-1] = "0" + _bytes[-1][1:]
         bin_str = "".join(_bytes)
-        return bytes(int(bin_str[i:i+8], 2) for i in range(0, len(bin_str), 8))
+        return bytes(int(bin_str[i:i + 8], 2) for i in range(0, len(bin_str), 8))
 
     def load(self):
         pass
 
 
 class Int32Serializer(VarintSerializer):
+    max_value = (1 << 32)
+
+    @classmethod
+    def get_bytes(cls, value):
+        if value > 0:
+            return super().get_bytes(value)
+        else:
+            return super().get_bytes(cls.max_value + value)
+
     @classmethod
     def dump(cls, value: int) -> bytes:
         return super().dump(value)
@@ -40,22 +53,23 @@ class Int32Serializer(VarintSerializer):
         pass
 
 
+class Int64Serializer(Int32Serializer):
+    max_value = 1 << 64
+
+
 class SignedInt32Serializer(VarintSerializer):
+    shift = 31
+
     @classmethod
     def dump(cls, value: Any):
-        return super().dump((value << 1) ^ (value >> 31))
+        return super().dump((value << 1) ^ (value >> cls.shift))
 
     def load(self):
         pass
 
 
-class SignedInt64Serializer(VarintSerializer):
-    @classmethod
-    def dump(cls, value: Any):
-        return super().dump((value << 1) ^ (value >> 63))
-
-    def load(self):
-        pass
+class SignedInt64Serializer(SignedInt32Serializer):
+    shift = 63
 
 
 class StringSerializer(Serializer):
@@ -64,7 +78,6 @@ class StringSerializer(Serializer):
     @classmethod
     def dump(cls, value: str) -> bytes:
         return bytes([len(value)]) + value.encode('utf-8')
-
 
     def load(self):
         pass
@@ -76,11 +89,9 @@ class MessageSerializer(VarintSerializer):
         result = bytes()
         for i, v in enumerate(values):
             if isinstance(v, int):
-                result += bytes([int(f'{bin(i+1)[2:]:0>5}{bin(VarintSerializer.wire_type)[2:]:0>3}', 2)])\
-                          + VarintSerializer.dump(v)
+                result += bytes([VarintSerializer.wire_type + ((i + 1) << 3)]) + VarintSerializer.dump(v)
             if isinstance(v, str):
-                result += bytes([int(f'{bin(i + 1)[2:]:0>5}{bin(StringSerializer.wire_type)[2:]:0>3}', 2)]) \
-                          + StringSerializer.dump(v)
+                result += bytes([StringSerializer.wire_type + ((i + 1) << 3)]) + StringSerializer.dump(v)
         return result
 
     def load(self):

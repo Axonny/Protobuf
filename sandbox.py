@@ -8,4 +8,4 @@ def format_output(hex_str: str) -> None:
 
 if __name__ == '__main__':
     format_output(MessageSerializer.dump([150]).hex())
-    format_output(MessageSerializer.dump(["testing"]).hex())
+    format_output(MessageSerializer.dump([150, "testing"]).hex())
