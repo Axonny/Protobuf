@@ -1,3 +1,5 @@
+
 message Test1 {
   optional int32 a = 1;
+  optional string b = 2;
 }
