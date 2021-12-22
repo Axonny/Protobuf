@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Any
+from io import BytesIO
 
 
 class Serializer(ABC):
@@ -9,7 +10,7 @@ class Serializer(ABC):
         pass
 
     @abstractmethod
-    def load(self):
+    def load(self, io: BytesIO):
         pass
 
 
@@ -31,8 +32,17 @@ class VarintSerializer(Serializer):
         bin_str = "".join(_bytes)
         return bytes(int(bin_str[i:i + 8], 2) for i in range(0, len(bin_str), 8))
 
-    def load(self):
-        pass
+    @classmethod
+    def load(cls, bytes_io: BytesIO) -> int:
+        result = 0
+        with bytes_io as io:
+            count = 0
+            while b := int.from_bytes(io.read(1), "big"):
+                is_not_end = b >> 7
+                result = result ^ ((b % (2 ** 7)) << (7 * count))
+                count += 1
+                if is_not_end == 0:
+                    return result
 
 
 class Int32Serializer(VarintSerializer):
@@ -49,7 +59,7 @@ class Int32Serializer(VarintSerializer):
     def dump(cls, value: int) -> bytes:
         return super().dump(value)
 
-    def load(self):
+    def load(self, io: BytesIO):
         pass
 
 
@@ -64,7 +74,7 @@ class SignedInt32Serializer(VarintSerializer):
     def dump(cls, value: Any):
         return super().dump((value << 1) ^ (value >> cls.shift))
 
-    def load(self):
+    def load(self, io: BytesIO):
         pass
 
 
@@ -79,8 +89,11 @@ class StringSerializer(Serializer):
     def dump(cls, value: str) -> bytes:
         return bytes([len(value)]) + value.encode('utf-8')
 
-    def load(self):
-        pass
+    @classmethod
+    def load(cls, bytes_io: BytesIO) -> str:
+        with bytes_io as io:
+            length = int.from_bytes(io.read(1), "big")
+            return io.read(length).decode('utf-8')
 
 
 class MessageSerializer(VarintSerializer):
@@ -94,7 +107,7 @@ class MessageSerializer(VarintSerializer):
                 result += bytes([StringSerializer.wire_type + ((i + 1) << 3)]) + StringSerializer.dump(v)
         return result
 
-    def load(self):
+    def load(self, io: BytesIO):
         pass
 
 
@@ -107,3 +120,17 @@ class Message:
         for k, v in self.fields.items():
             result += bytes([v[2].wire_type + (k << 3)]) + v[2].dump(v[0]())
         return result
+
+    def load(self, bytes_io: BytesIO) -> dict:
+        self.fields = {}
+        with bytes_io as io:
+            b = int.from_bytes(io.read(1), "big")
+            number, wire_type = b >> 3, b % 8
+            data = None
+            if wire_type == 0:
+                data = VarintSerializer.load(io)
+            if wire_type == 2:
+                data = StringSerializer.load(io)
+
+            self.fields[number] = data
+        return self.fields
