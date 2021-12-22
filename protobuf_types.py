@@ -33,16 +33,15 @@ class VarintSerializer(Serializer):
         return bytes(int(bin_str[i:i + 8], 2) for i in range(0, len(bin_str), 8))
 
     @classmethod
-    def load(cls, bytes_io: BytesIO) -> int:
+    def load(cls, io: BytesIO) -> int:
         result = 0
-        with bytes_io as io:
-            count = 0
-            while b := int.from_bytes(io.read(1), "big"):
-                is_not_end = b >> 7
-                result = result ^ ((b % (2 ** 7)) << (7 * count))
-                count += 1
-                if is_not_end == 0:
-                    return result
+        count = 0
+        while b := int.from_bytes(io.read(1), "big"):
+            is_not_end = b >> 7
+            result = result ^ ((b % (2 ** 7)) << (7 * count))
+            count += 1
+            if is_not_end == 0:
+                return result
 
 
 class Int32Serializer(VarintSerializer):
@@ -90,10 +89,9 @@ class StringSerializer(Serializer):
         return bytes([len(value)]) + value.encode('utf-8')
 
     @classmethod
-    def load(cls, bytes_io: BytesIO) -> str:
-        with bytes_io as io:
-            length = int.from_bytes(io.read(1), "big")
-            return io.read(length).decode('utf-8')
+    def load(cls, io: BytesIO) -> str:
+        length = int.from_bytes(io.read(1), "big")
+        return io.read(length).decode('utf-8')
 
 
 class MessageSerializer(VarintSerializer):
@@ -122,15 +120,19 @@ class Message:
         return result
 
     def load(self, bytes_io: BytesIO) -> dict:
-        self.fields = {}
+        fields = {}
         with bytes_io as io:
-            b = int.from_bytes(io.read(1), "big")
-            number, wire_type = b >> 3, b % 8
-            data = None
-            if wire_type == 0:
-                data = VarintSerializer.load(io)
-            if wire_type == 2:
-                data = StringSerializer.load(io)
+            while _byte := io.read(1):
+                b = int.from_bytes(_byte, "big")
+                number, wire_type = b >> 3, b % 8
+                data = None
+                if wire_type == 0:
+                    data = VarintSerializer.load(io)
+                if wire_type == 2:
+                    data = StringSerializer.load(io)
 
-            self.fields[number] = data
-        return self.fields
+                fields[number] = data
+
+        for k, v in fields.items():
+            self.fields[k][1](v)
+
