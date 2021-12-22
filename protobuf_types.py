@@ -99,6 +99,8 @@ class MessageSerializer(VarintSerializer):
 
 
 class Message:
+    def __init__(self):
+        self.fields = {}
 
     def dump(self):
         result = bytes()
