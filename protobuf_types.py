@@ -100,19 +100,6 @@ class MessageSerializer(VarintSerializer):
 
 class Message:
 
-    def _get_a(self):
-        return self.a
-
-    def _set_a(self, val):
-        self.a = val
-
-    def __init__(self):
-        self.a = 0
-        self.fields = \
-            {
-                1: [self._get_a, self._set_a, Int32Serializer()]
-            }
-
     def dump(self):
         result = bytes()
         for k, v in self.fields.items():
