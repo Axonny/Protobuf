@@ -1,5 +1,5 @@
 
-from protobuf_types import MessageSerializer, Message
+from protobuf_types import Message
 from simple_ptbf import Test1
 from io import BytesIO
 

@@ -4,6 +4,7 @@ from io import BytesIO
 
 
 class Serializer(ABC):
+    wire_type = -1
 
     @abstractmethod
     def dump(self, value: Any):
@@ -58,8 +59,9 @@ class Int32Serializer(VarintSerializer):
     def dump(cls, value: int) -> bytes:
         return super().dump(value)
 
-    def load(self, io: BytesIO):
-        pass
+    @classmethod
+    def load(cls, io: BytesIO) -> int:
+        return super().load(io)
 
 
 class Int64Serializer(Int32Serializer):
@@ -70,15 +72,28 @@ class SignedInt32Serializer(VarintSerializer):
     shift = 31
 
     @classmethod
-    def dump(cls, value: Any):
+    def dump(cls, value: int) -> bytes:
         return super().dump((value << 1) ^ (value >> cls.shift))
 
-    def load(self, io: BytesIO):
-        pass
+    @classmethod
+    def load(cls, io: BytesIO) -> int:
+        value = super().load(io)
+        return (value >> 1) ^ (-(value & 1))
 
 
 class SignedInt64Serializer(SignedInt32Serializer):
     shift = 63
+
+
+class BoolSerializer(VarintSerializer):
+    @classmethod
+    def dump(cls, value: bool) -> bytes:
+        return super().dump(int(value))
+
+    @classmethod
+    def load(cls, io: BytesIO) -> bool:
+        value = super().load(io)
+        return value == 1
 
 
 class StringSerializer(Serializer):
@@ -90,23 +105,42 @@ class StringSerializer(Serializer):
 
     @classmethod
     def load(cls, io: BytesIO) -> str:
-        length = int.from_bytes(io.read(1), "big")
-        return io.read(length).decode('utf-8')
+        return io.read().decode('utf-8')
 
 
-class MessageSerializer(VarintSerializer):
+class BytesSerializer(Serializer):
+    wire_type = 2
+
     @classmethod
-    def dump(cls, values: list[Any]):
+    def dump(cls, value: bytes) -> bytes:
+        return bytes([len(value)]) + value
+
+    @classmethod
+    def load(cls, io: BytesIO) -> bytes:
+        return io.read()
+
+
+class RepeatedSerializer(Serializer):
+    wire_type = 2
+
+    def __init__(self, serializer: Serializer):
+        self.serializer = serializer
+
+    def dump(self, values: list) -> bytes:
         result = bytes()
-        for i, v in enumerate(values):
-            if isinstance(v, int):
-                result += bytes([VarintSerializer.wire_type + ((i + 1) << 3)]) + VarintSerializer.dump(v)
-            if isinstance(v, str):
-                result += bytes([StringSerializer.wire_type + ((i + 1) << 3)]) + StringSerializer.dump(v)
+        for value in values:
+            result += self.serializer.dump(value)
         return result
 
-    def load(self, io: BytesIO):
-        pass
+    def load(self, bytes_io: BytesIO) -> list:
+        result = []
+        with bytes_io as io:
+            if self.serializer.wire_type == 1:
+                result.append(self.serializer.load(io))
+            elif self.serializer.wire_type == 2:
+                length = int.from_bytes(io.read(1), "big")
+                result.append(self.serializer.load(BytesIO(io.read(length))))
+        return result
 
 
 class Message:
@@ -119,20 +153,19 @@ class Message:
             result += bytes([v[2].wire_type + (k << 3)]) + v[2].dump(v[0]())
         return result
 
-    def load(self, bytes_io: BytesIO) -> dict:
+    def load(self, bytes_io: BytesIO) -> None:
         fields = {}
         with bytes_io as io:
             while _byte := io.read(1):
                 b = int.from_bytes(_byte, "big")
                 number, wire_type = b >> 3, b % 8
                 data = None
-                if wire_type == 0:
-                    data = VarintSerializer.load(io)
+                if wire_type == 1:
+                    data = self.fields[number][2].load(io)
                 if wire_type == 2:
-                    data = StringSerializer.load(io)
-
+                    length = int.from_bytes(io.read(1), "big")
+                    data = self.fields[number][2].load(BytesIO(io.read(length)))
                 fields[number] = data
 
         for k, v in fields.items():
             self.fields[k][1](v)
-
