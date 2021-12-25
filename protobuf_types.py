@@ -135,7 +135,7 @@ class RepeatedSerializer(Serializer):
     def load(self, bytes_io: BytesIO) -> list:
         result = []
         with bytes_io as io:
-            if self.serializer.wire_type == 1:
+            if self.serializer.wire_type == 0:
                 result.append(self.serializer.load(io))
             elif self.serializer.wire_type == 2:
                 length = int.from_bytes(io.read(1), "big")
@@ -160,7 +160,7 @@ class Message:
                 b = int.from_bytes(_byte, "big")
                 number, wire_type = b >> 3, b % 8
                 data = None
-                if wire_type == 1:
+                if wire_type == 0:
                     data = self.fields[number][2].load(io)
                 if wire_type == 2:
                     length = int.from_bytes(io.read(1), "big")
