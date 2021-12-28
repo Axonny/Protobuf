@@ -1,6 +1,6 @@
-from protobuf_types import Message
-from protobuf_types import StringSerializer
-from protobuf_types import Int32Serializer
+from protobuf.protobuf_types import Message
+from protobuf.protobuf_types import StringSerializer
+from protobuf.protobuf_types import Int32Serializer
 
 
 class Test1(Message):
