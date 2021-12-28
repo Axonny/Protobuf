@@ -1,6 +1,8 @@
-from abc import ABC, abstractmethod
-from typing import Any
+import struct
+
 from io import BytesIO
+from typing import Any
+from abc import ABC, abstractmethod
 
 
 class Serializer(ABC):
@@ -96,12 +98,32 @@ class BoolSerializer(VarintSerializer):
         return value == 1
 
 
+class FloatSerializer(Serializer):
+    wire_type = 5
+    format = '<f'
+    size = 4
+
+    @classmethod
+    def dump(cls, value: float) -> bytes:
+        return struct.pack(cls.format, value)
+
+    @classmethod
+    def load(cls, io: BytesIO) -> float:
+        return struct.unpack(cls.format, io.read(cls.size))[0]
+
+
+class DoubleSerializer(FloatSerializer):
+    wire_type = 1
+    format = '<d'
+    size = 8
+
+
 class StringSerializer(Serializer):
     wire_type = 2
 
     @classmethod
     def dump(cls, value: str) -> bytes:
-        return bytes([len(value)]) + value.encode('utf-8')
+        return VarintSerializer.dump(len(value)) + value.encode('utf-8')
 
     @classmethod
     def load(cls, io: BytesIO) -> str:
@@ -113,7 +135,7 @@ class BytesSerializer(Serializer):
 
     @classmethod
     def dump(cls, value: bytes) -> bytes:
-        return bytes([len(value)]) + value
+        return VarintSerializer.dump(len(value)) + value
 
     @classmethod
     def load(cls, io: BytesIO) -> bytes:
@@ -127,7 +149,7 @@ class RepeatedSerializer(Serializer):
         self.serializer = serializer
 
     def dump(self, values: list) -> bytes:
-        result = bytes()
+        result = VarintSerializer.dump(len(values))
         for value in values:
             result += self.serializer.dump(value)
         return result
@@ -135,10 +157,10 @@ class RepeatedSerializer(Serializer):
     def load(self, bytes_io: BytesIO) -> list:
         result = []
         with bytes_io as io:
-            if self.serializer.wire_type == 0:
+            if self.serializer.wire_type in [0, 1, 5]:
                 result.append(self.serializer.load(io))
             elif self.serializer.wire_type == 2:
-                length = int.from_bytes(io.read(1), "big")
+                length = VarintSerializer.load(io)
                 result.append(self.serializer.load(BytesIO(io.read(length))))
         return result
 
@@ -146,11 +168,15 @@ class RepeatedSerializer(Serializer):
 class Message:
     def __init__(self):
         self.fields = {}
+        self._embedded = False
 
     def dump(self):
         result = bytes()
         for k, v in self.fields.items():
+            v[2]._embedded = True
             result += bytes([v[2].wire_type + (k << 3)]) + v[2].dump(v[0]())
+        if self._embedded:
+            result = VarintSerializer.dump(len(result)) + result
         return result
 
     def load(self, bytes_io: BytesIO) -> None:
@@ -160,10 +186,10 @@ class Message:
                 b = int.from_bytes(_byte, "big")
                 number, wire_type = b >> 3, b % 8
                 data = None
-                if wire_type == 0:
+                if wire_type in [0, 1, 5]:
                     data = self.fields[number][2].load(io)
                 if wire_type == 2:
-                    length = int.from_bytes(io.read(1), "big")
+                    length = VarintSerializer.load(io)
                     data = self.fields[number][2].load(BytesIO(io.read(length)))
                 fields[number] = data
 
