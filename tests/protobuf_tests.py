@@ -1,7 +1,6 @@
 import unittest
 from protobuf.protobuf_types import *
 
-from tests.TestInner2_ptbf import TestInner2
 from tests.TestInner_ptbf import TestInner
 from tests.TestRepeated_ptbf import TestRepeated
 from tests.Test2_ptbf import Test2

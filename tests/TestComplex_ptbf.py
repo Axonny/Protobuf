@@ -1,106 +1,106 @@
 from protobuf.protobuf_types import Message
-from protobuf.protobuf_types import StringSerializer
-from protobuf.protobuf_types import SignedInt32Serializer
-from protobuf.protobuf_types import SignedInt64Serializer
-from protobuf.protobuf_types import Int64Serializer
-from protobuf.protobuf_types import BoolSerializer
 from protobuf.protobuf_types import Int32Serializer
+from protobuf.protobuf_types import SignedInt32Serializer
+from protobuf.protobuf_types import StringSerializer
+from protobuf.protobuf_types import BoolSerializer
+from protobuf.protobuf_types import Int64Serializer
+from protobuf.protobuf_types import SignedInt64Serializer
 from protobuf.protobuf_types import DoubleSerializer
 from protobuf.protobuf_types import FloatSerializer
 from TestInner_ptbf import TestInner
 
 
 class TestComplex(Message):
-    def _get_a(cls):
-        return cls.a
+    def _get_a(self):
+        return self.a
 
-    def _set_a(cls, val):
-        cls.a = val
+    def _set_a(self, val):
+        self.a = val
 
-    def _get_b(cls):
-        return cls.b
+    def _get_b(self):
+        return self.b
 
-    def _set_b(cls, val):
-        cls.b = val
+    def _set_b(self, val):
+        self.b = val
 
-    def _get_c(cls):
-        return cls.c
+    def _get_c(self):
+        return self.c
 
-    def _set_c(cls, val):
-        cls.c = val
+    def _set_c(self, val):
+        self.c = val
 
-    def _get_d(cls):
-        return cls.d
+    def _get_d(self):
+        return self.d
 
-    def _set_d(cls, val):
-        cls.d = val
+    def _set_d(self, val):
+        self.d = val
 
-    def _get_e(cls):
-        return cls.e
+    def _get_e(self):
+        return self.e
 
-    def _set_e(cls, val):
-        cls.e = val
+    def _set_e(self, val):
+        self.e = val
 
-    def _get_e(cls):
-        return cls.e
+    def _get_e2(self):
+        return self.e2
 
-    def _set_e(cls, val):
-        cls.e = val
+    def _set_e2(self, val):
+        self.e2 = val
 
-    def _get_f(cls):
-        return cls.f
+    def _get_f(self):
+        return self.f
 
-    def _set_f(cls, val):
-        cls.f = val
+    def _set_f(self, val):
+        self.f = val
 
-    def _get_g(cls):
-        return cls.g
+    def _get_g(self):
+        return self.g
 
-    def _set_g(cls, val):
-        cls.g = val
+    def _set_g(self, val):
+        self.g = val
 
-    def _get_h(cls):
-        return cls.h
+    def _get_h(self):
+        return self.h
 
-    def _set_h(cls, val):
-        cls.h = val
+    def _set_h(self, val):
+        self.h = val
 
-    def _get_i(cls):
-        return cls.i
+    def _get_i(self):
+        return self.i
 
-    def _set_i(cls, val):
-        cls.i = val
+    def _set_i(self, val):
+        self.i = val
 
-    def _get_t(cls):
-        return cls.t
+    def _get_t(self):
+        return self.t
 
-    def _set_t(cls, val):
-        cls.t = val
+    def _set_t(self, val):
+        self.t = val
 
-    def __init__(cls):
+    def __init__(self):
         super().__init__()
-        cls.a = 0
-        cls.b = 0
-        cls.c = 0
-        cls.d = 0
-        cls.e = 0
-        cls.e = 0
-        cls.f = 0.0
-        cls.g = 0.0
-        cls.h = 0
-        cls.i = None
-        cls.t = None
-        cls.fields = \
+        self.a = 0
+        self.b = 0
+        self.c = 0
+        self.d = 0
+        self.e = 0
+        self.e2 = 0
+        self.f = 0.0
+        self.g = 0.0
+        self.h = 0
+        self.i = None
+        self.t = None
+        self.fields = \
             {
-                1: [cls._get_a, cls._set_a, Int32Serializer, False],
-                2: [cls._get_b, cls._set_b, Int64Serializer, False],
-                3: [cls._get_c, cls._set_c, Int32Serializer, False],
-                4: [cls._get_d, cls._set_d, Int64Serializer, False],
-                5: [cls._get_e, cls._set_e, SignedInt32Serializer, False],
-                6: [cls._get_e, cls._set_e, SignedInt64Serializer, False],
-                7: [cls._get_f, cls._set_f, DoubleSerializer, False],
-                8: [cls._get_g, cls._set_g, FloatSerializer, False],
-                9: [cls._get_h, cls._set_h, BoolSerializer, False],
-                10: [cls._get_i, cls._set_i, StringSerializer, False],
-                12: [cls._get_t, cls._set_t, TestInner, False]
+                1: [self._get_a, self._set_a, Int32Serializer, False],
+                2: [self._get_b, self._set_b, Int64Serializer, False],
+                3: [self._get_c, self._set_c, Int32Serializer, False],
+                4: [self._get_d, self._set_d, Int64Serializer, False],
+                5: [self._get_e, self._set_e, SignedInt32Serializer, False],
+                6: [self._get_e2, self._set_e2, SignedInt64Serializer, False],
+                7: [self._get_f, self._set_f, DoubleSerializer, False],
+                8: [self._get_g, self._set_g, FloatSerializer, False],
+                9: [self._get_h, self._set_h, BoolSerializer, False],
+                10: [self._get_i, self._set_i, StringSerializer, False],
+                12: [self._get_t, self._set_t, TestInner, False]
             }

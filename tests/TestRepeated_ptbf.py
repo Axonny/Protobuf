@@ -4,24 +4,24 @@ from TestInner2_ptbf import TestInner2
 
 
 class TestRepeated(Message):
-    def _get_d(cls):
-        return cls.d
+    def _get_d(self):
+        return self.d
 
-    def _set_d(cls, val):
-        cls.d.append(val)
+    def _set_d(self, val):
+        self.d.append(val)
 
-    def _get_f(cls):
-        return cls.f
+    def _get_f(self):
+        return self.f
 
-    def _set_f(cls, val):
-        cls.f.append(val)
+    def _set_f(self, val):
+        self.f.append(val)
 
-    def __init__(cls):
+    def __init__(self):
         super().__init__()
-        cls.d = []
-        cls.f = []
-        cls.fields = \
+        self.d = []
+        self.f = []
+        self.fields = \
             {
-                4: [cls._get_d, cls._set_d, Int32Serializer, True],
-                10: [cls._get_f, cls._set_f, TestInner2, True]
+                4: [self._get_d, self._set_d, Int32Serializer, True],
+                10: [self._get_f, self._set_f, TestInner2, True]
             }
