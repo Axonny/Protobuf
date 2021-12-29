@@ -1,12 +1,11 @@
 from protobuf.protobuf_types import Message
+from protobuf.protobuf_types import DoubleSerializer
+from protobuf.protobuf_types import BoolSerializer
+from protobuf.protobuf_types import FloatSerializer
 from protobuf.protobuf_types import Int32Serializer
 from protobuf.protobuf_types import SignedInt32Serializer
 from protobuf.protobuf_types import StringSerializer
-from protobuf.protobuf_types import BoolSerializer
 from protobuf.protobuf_types import Int64Serializer
-from protobuf.protobuf_types import SignedInt64Serializer
-from protobuf.protobuf_types import DoubleSerializer
-from protobuf.protobuf_types import FloatSerializer
 from TestInner_ptbf import TestInner
 
 
@@ -40,12 +39,6 @@ class TestComplex(Message):
 
     def _set_e(self, val):
         self.e = val
-
-    def _get_e2(self):
-        return self.e2
-
-    def _set_e2(self, val):
-        self.e2 = val
 
     def _get_f(self):
         return self.f
@@ -84,7 +77,6 @@ class TestComplex(Message):
         self.c = 0
         self.d = 0
         self.e = 0
-        self.e2 = 0
         self.f = 0.0
         self.g = 0.0
         self.h = 0
@@ -97,7 +89,6 @@ class TestComplex(Message):
                 3: [self._get_c, self._set_c, Int32Serializer, False],
                 4: [self._get_d, self._set_d, Int64Serializer, False],
                 5: [self._get_e, self._set_e, SignedInt32Serializer, False],
-                6: [self._get_e2, self._set_e2, SignedInt64Serializer, False],
                 7: [self._get_f, self._set_f, DoubleSerializer, False],
                 8: [self._get_g, self._set_g, FloatSerializer, False],
                 9: [self._get_h, self._set_h, BoolSerializer, False],

@@ -74,7 +74,6 @@ class LoadDumpTestCase(unittest.TestCase):
         tc.c = 400
         tc.d = 800
         tc.e = -100
-        tc.f = -200
         tc.f = -2.2
         tc.i = "test"
         embedded = TestInner()

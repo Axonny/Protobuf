@@ -4,7 +4,6 @@ message TestComplex {
   optional uint32 c = 3;
   optional uint64 d = 4;
   optional sint32 e = 5;
-  optional sint64 e2 = 6;
   optional double f = 7;
   optional float g = 8;
   optional bool h = 9;
@@ -18,7 +17,6 @@ message TestInner {
   optional uint32 c = 3;
   optional uint64 d = 4;
   optional sint32 e = 5;
-  optional sint64 e2 = 6;
   optional double f = 7;
   optional float g = 8;
   optional bool h = 9;
