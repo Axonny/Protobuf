@@ -14,5 +14,5 @@ class Test2(Message):
         cls.c = 0
         cls.fields = \
             {
-                1: [cls._get_c, cls._set_c, Int32Serializer(), False]
+                1: [cls._get_c, cls._set_c, Int32Serializer, False]
             }

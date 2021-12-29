@@ -1,10 +1,10 @@
 from protobuf.protobuf_types import Message
 from protobuf.protobuf_types import StringSerializer
 from protobuf.protobuf_types import Int32Serializer
-from Test2_ptbf import Test2
+from TestInner2_ptbf import TestInner2
 
 
-class Test1(Message):
+class TestImport(Message):
     def _get_a(cls):
         return cls.a
 
@@ -23,22 +23,14 @@ class Test1(Message):
     def _set_c(cls, val):
         cls.c = val
 
-    def _get_d(cls):
-        return cls.d
-
-    def _set_d(cls, val):
-        cls.d.append(val)
-
     def __init__(cls):
         super().__init__()
         cls.a = 0
         cls.b = None
         cls.c = None
-        cls.d = []
         cls.fields = \
             {
                 1: [cls._get_a, cls._set_a, Int32Serializer, False],
                 2: [cls._get_b, cls._set_b, StringSerializer, False],
-                3: [cls._get_c, cls._set_c, Test2, False],
-                4: [cls._get_d, cls._set_d, Int32Serializer, True]
+                3: [cls._get_c, cls._set_c, TestInner2, False]
             }

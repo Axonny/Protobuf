@@ -1,11 +1,12 @@
 from protobuf.protobuf_types import Message
-from protobuf.protobuf_types import Int32Serializer
-from protobuf.protobuf_types import BoolSerializer
 from protobuf.protobuf_types import StringSerializer
-from protobuf.protobuf_types import Int64Serializer
-from protobuf.protobuf_types import SignedInt64Serializer
-from protobuf.protobuf_types import VarintSerializer
 from protobuf.protobuf_types import SignedInt32Serializer
+from protobuf.protobuf_types import SignedInt64Serializer
+from protobuf.protobuf_types import Int64Serializer
+from protobuf.protobuf_types import BoolSerializer
+from protobuf.protobuf_types import Int32Serializer
+from protobuf.protobuf_types import DoubleSerializer
+from protobuf.protobuf_types import FloatSerializer
 
 
 class TestInner(Message):
@@ -77,20 +78,20 @@ class TestInner(Message):
         cls.d = 0
         cls.e = 0
         cls.e = 0
-        cls.f = None
-        cls.g = None
+        cls.f = 0.0
+        cls.g = 0.0
         cls.h = 0
         cls.i = None
         cls.fields = \
             {
-                1: [cls._get_a, cls._set_a, Int32Serializer(), False],
-                2: [cls._get_b, cls._set_b, Int64Serializer(), False],
-                3: [cls._get_c, cls._set_c, VarintSerializer(), False],
-                4: [cls._get_d, cls._set_d, VarintSerializer(), False],
-                5: [cls._get_e, cls._set_e, SignedInt32Serializer(), False],
-                6: [cls._get_e, cls._set_e, SignedInt64Serializer(), False],
-                7: [cls._get_f, cls._set_f, double(), False],
-                8: [cls._get_g, cls._set_g, float(), False],
-                9: [cls._get_h, cls._set_h, BoolSerializer(), False],
-                10: [cls._get_i, cls._set_i, StringSerializer(), False]
+                1: [cls._get_a, cls._set_a, Int32Serializer, False],
+                2: [cls._get_b, cls._set_b, Int64Serializer, False],
+                3: [cls._get_c, cls._set_c, Int32Serializer, False],
+                4: [cls._get_d, cls._set_d, Int64Serializer, False],
+                5: [cls._get_e, cls._set_e, SignedInt32Serializer, False],
+                6: [cls._get_e, cls._set_e, SignedInt64Serializer, False],
+                7: [cls._get_f, cls._set_f, DoubleSerializer, False],
+                8: [cls._get_g, cls._set_g, FloatSerializer, False],
+                9: [cls._get_h, cls._set_h, BoolSerializer, False],
+                10: [cls._get_i, cls._set_i, StringSerializer, False]
             }

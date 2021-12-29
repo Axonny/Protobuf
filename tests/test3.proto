@@ -1,4 +1,4 @@
-import "test2.proto"
+import "test2.proto";
 
 message TestImport {
   optional int32 a = 1;

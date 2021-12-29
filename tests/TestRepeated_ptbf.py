@@ -22,6 +22,6 @@ class TestRepeated(Message):
         cls.f = []
         cls.fields = \
             {
-                4: [cls._get_d, cls._set_d, Int32Serializer(), True],
-                10: [cls._get_f, cls._set_f, TestInner2(), True]
+                4: [cls._get_d, cls._set_d, Int32Serializer, True],
+                10: [cls._get_f, cls._set_f, TestInner2, True]
             }

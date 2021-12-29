@@ -15,23 +15,27 @@ default_values = \
         "sfixed64": 0,
         "bool": 0,
         "string": None,
-        "repeated": []
+        "repeated": [],
+        "float": 0.0,
+        "double": 0.0
     }
 
 serializers = \
     {
-        "int32": "Int32Serializer()",
-        "uint32": "Int32Serializer()",
-        "sint32": "SignedInt32Serializer()",
-        "fixed32": "FloatSerializer()",
-        "sfixed32": "FloatSerializer()",
-        "int64": "Int64Serializer()",
-        "uint64": "Int64Serializer()",
-        "sint64": "SignedInt64Serializer()",
-        "fixed64": "DoubleSerializer()",
-        "sfixed64": "DoubleSerializer()",
-        "bool": "BoolSerializer()",
-        "string": "StringSerializer()"
+        "int32": "Int32Serializer",
+        "uint32": "Int32Serializer",
+        "sint32": "SignedInt32Serializer",
+        "fixed32": "FloatSerializer",
+        "sfixed32": "FloatSerializer",
+        "int64": "Int64Serializer",
+        "uint64": "Int64Serializer",
+        "sint64": "SignedInt64Serializer",
+        "fixed64": "DoubleSerializer",
+        "sfixed64": "DoubleSerializer",
+        "bool": "BoolSerializer",
+        "string": "StringSerializer",
+        "float": "FloatSerializer",
+        "double": "DoubleSerializer"
     }
 messages = {}
 
@@ -46,7 +50,7 @@ def gen_imports(fields, messages):
             if messages.get(type_name) is not None:
                 set_message_types.add(type_name)
         else:
-            set_types.add(type_val[:-2])
+            set_types.add(type_val)
     for t in set_types:
         ans += f"from protobuf.protobuf_types import {t}\n"
     for t in set_message_types:
@@ -69,7 +73,7 @@ def gen_init(fields):
     ans += (" " * 12) + "{\n"
     for k, v in fields.items():
         if (serializer := serializers.get(v[0])) is None:
-            serializer = v[0] + "()"
+            serializer = v[0]
         ans += (" " * 16) + f"{k}: [cls._get_{v[1]}, cls._set_{v[1]}, {serializer}, {v[2]}],\n"
     ans = ans[:-2] + "\n"
     ans += (" " * 12) + "}\n"

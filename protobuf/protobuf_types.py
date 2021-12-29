@@ -145,13 +145,15 @@ class BytesSerializer(Serializer):
 class RepeatedSerializer(Serializer):
     wire_type = 2
 
-    def __init__(self, serializer: Serializer):
+    def __init__(self, serializer: callable):
         self.serializer = serializer
 
     def dump_inner(self, values: list) -> bytes:
         result = VarintSerializer.dump_inner(len(values))
         for value in values:
-            result += self.serializer.dump_inner(value)
+            s = self.serializer()
+            s._embedded = True
+            result += s.dump_inner(value)
         return result
 
     def load(self, bytes_io: BytesIO) -> list:
@@ -161,7 +163,7 @@ class RepeatedSerializer(Serializer):
                 result.append(self.serializer.load(io))
             elif self.serializer.wire_type == 2:
                 length = VarintSerializer.load(io)
-                result.append(self.serializer.load(BytesIO(io.read(length))))
+                result.append(self.serializer().load(BytesIO(io.read(length))))
         return result
 
 
@@ -178,12 +180,12 @@ class Message:
             if v[3]:
                 for v2 in v[0]():
                     v[2]._embedded = True
-                    result += bytes([v[2].wire_type + (k << 3)]) + v[2].dump_inner(v2)
+                    result += bytes([v[2].wire_type + (k << 3)]) + v[2]().dump_inner(v2)
             else:
                 val = v[0]()
                 if val is not None:
                     v[2]._embedded = True
-                    result += bytes([v[2].wire_type + (k << 3)]) + v[2].dump_inner(val)
+                    result += bytes([v[2].wire_type + (k << 3)]) + v[2]().dump_inner(val)
         if self._embedded:
             result = VarintSerializer.dump_inner(len(result)) + result
         return result
@@ -202,6 +204,6 @@ class Message:
                     data = self.fields[number][2].load(io)
                 if wire_type == 2:
                     length = VarintSerializer.load(io)
-                    data = self.fields[number][2].load(BytesIO(io.read(length)))
+                    data = self.fields[number][2]().load(BytesIO(io.read(length)))
                 self.fields[number][1](data)
         return self

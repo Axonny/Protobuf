@@ -14,5 +14,5 @@ class TestInner2(Message):
         cls.c = []
         cls.fields = \
             {
-                1: [cls._get_c, cls._set_c, Int32Serializer(), True]
+                1: [cls._get_c, cls._set_c, Int32Serializer, True]
             }
