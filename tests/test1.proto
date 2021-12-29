@@ -1,0 +1,26 @@
+message TestComplex {
+  optional int32 a = 1;
+  optional int64 b = 2;
+  optional uint32 c = 3;
+  optional uint64 d = 4;
+  optional sint32 e = 5;
+  optional sint64 e = 6;
+  optional double f = 7;
+  optional float g = 8;
+  optional bool h = 9;
+  optional string i = 10;
+  optional TestInner t = 12;
+}
+
+message TestInner {
+  optional int32 a = 1;
+  optional int64 b = 2;
+  optional uint32 c = 3;
+  optional uint64 d = 4;
+  optional sint32 e = 5;
+  optional sint64 e = 6;
+  optional double f = 7;
+  optional float g = 8;
+  optional bool h = 9;
+  optional string i = 10;
+}

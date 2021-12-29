@@ -1,0 +1,8 @@
+message TestRepeated {
+    repeated int32 d = 4;
+    repeated TestInner2 f = 10;
+}
+
+message TestInner2 {
+  repeated int32 c = 1;
+}

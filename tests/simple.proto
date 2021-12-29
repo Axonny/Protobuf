@@ -1,5 +1,8 @@
+import "s2.proto";
 
 message Test1 {
   optional int32 a = 1;
   optional string b = 2;
+  optional Test2 c = 3;
+  repeated int32 d = 4;
 }

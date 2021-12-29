@@ -9,7 +9,7 @@ class Serializer(ABC):
     wire_type = -1
 
     @abstractmethod
-    def dump(self, value: Any):
+    def dump_inner(self, value: Any):
         pass
 
     @abstractmethod
@@ -25,7 +25,7 @@ class VarintSerializer(Serializer):
         return bin(value)[2:]
 
     @classmethod
-    def dump(cls, value: int) -> bytes:
+    def dump_inner(cls, value: int) -> bytes:
         b = cls.get_bytes(value=value)
         count_zeros = (7 - len(b) % 7) % 7
         b = "0" * count_zeros + b
@@ -58,8 +58,8 @@ class Int32Serializer(VarintSerializer):
             return super().get_bytes(cls.max_value + value)
 
     @classmethod
-    def dump(cls, value: int) -> bytes:
-        return super().dump(value)
+    def dump_inner(cls, value: int) -> bytes:
+        return super().dump_inner(value)
 
     @classmethod
     def load(cls, io: BytesIO) -> int:
@@ -74,8 +74,8 @@ class SignedInt32Serializer(VarintSerializer):
     shift = 31
 
     @classmethod
-    def dump(cls, value: int) -> bytes:
-        return super().dump((value << 1) ^ (value >> cls.shift))
+    def dump_inner(cls, value: int) -> bytes:
+        return super().dump_inner((value << 1) ^ (value >> cls.shift))
 
     @classmethod
     def load(cls, io: BytesIO) -> int:
@@ -89,8 +89,8 @@ class SignedInt64Serializer(SignedInt32Serializer):
 
 class BoolSerializer(VarintSerializer):
     @classmethod
-    def dump(cls, value: bool) -> bytes:
-        return super().dump(int(value))
+    def dump_inner(cls, value: bool) -> bytes:
+        return super().dump_inner(int(value))
 
     @classmethod
     def load(cls, io: BytesIO) -> bool:
@@ -104,7 +104,7 @@ class FloatSerializer(Serializer):
     size = 4
 
     @classmethod
-    def dump(cls, value: float) -> bytes:
+    def dump_inner(cls, value: float) -> bytes:
         return struct.pack(cls.format, value)
 
     @classmethod
@@ -122,8 +122,8 @@ class StringSerializer(Serializer):
     wire_type = 2
 
     @classmethod
-    def dump(cls, value: str) -> bytes:
-        return VarintSerializer.dump(len(value)) + value.encode('utf-8')
+    def dump_inner(cls, value: str) -> bytes:
+        return VarintSerializer.dump_inner(len(value)) + value.encode('utf-8')
 
     @classmethod
     def load(cls, io: BytesIO) -> str:
@@ -134,8 +134,8 @@ class BytesSerializer(Serializer):
     wire_type = 2
 
     @classmethod
-    def dump(cls, value: bytes) -> bytes:
-        return VarintSerializer.dump(len(value)) + value
+    def dump_inner(cls, value: bytes) -> bytes:
+        return VarintSerializer.dump_inner(len(value)) + value
 
     @classmethod
     def load(cls, io: BytesIO) -> bytes:
@@ -148,10 +148,10 @@ class RepeatedSerializer(Serializer):
     def __init__(self, serializer: Serializer):
         self.serializer = serializer
 
-    def dump(self, values: list) -> bytes:
-        result = VarintSerializer.dump(len(values))
+    def dump_inner(self, values: list) -> bytes:
+        result = VarintSerializer.dump_inner(len(values))
         for value in values:
-            result += self.serializer.dump(value)
+            result += self.serializer.dump_inner(value)
         return result
 
     def load(self, bytes_io: BytesIO) -> list:
@@ -166,6 +166,8 @@ class RepeatedSerializer(Serializer):
 
 
 class Message:
+    wire_type = 2
+
     def __init__(self):
         self.fields = {}
         self._embedded = False
@@ -173,14 +175,23 @@ class Message:
     def dump(self):
         result = bytes()
         for k, v in self.fields.items():
-            v[2]._embedded = True
-            result += bytes([v[2].wire_type + (k << 3)]) + v[2].dump(v[0]())
+            if v[3]:
+                for v2 in v[0]():
+                    result += bytes([v[2].wire_type + (k << 3)]) + v[2].dump_inner(v2)
+            else:
+                val = v[0]()
+                if val is not None:
+                    v[2]._embedded = True
+                    result += bytes([v[2].wire_type + (k << 3)]) + v[2].dump_inner(val)
         if self._embedded:
-            result = VarintSerializer.dump(len(result)) + result
+            result = VarintSerializer.dump_inner(len(result)) + result
         return result
 
+    def dump_inner(self, value):
+        value._embedded = self._embedded
+        return value.dump()
+
     def load(self, bytes_io: BytesIO) -> None:
-        fields = {}
         with bytes_io as io:
             while _byte := io.read(1):
                 b = int.from_bytes(_byte, "big")
@@ -191,7 +202,5 @@ class Message:
                 if wire_type == 2:
                     length = VarintSerializer.load(io)
                     data = self.fields[number][2].load(BytesIO(io.read(length)))
-                fields[number] = data
-
-        for k, v in fields.items():
-            self.fields[k][1](v)
+                self.fields[number][1](data)
+        return self

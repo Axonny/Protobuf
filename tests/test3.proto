@@ -1,0 +1,7 @@
+import "test2.proto"
+
+message TestImport {
+  optional int32 a = 1;
+  optional string b = 2;
+  optional TestInner2 c = 3;
+}

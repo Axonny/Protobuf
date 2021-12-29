@@ -1,25 +1,57 @@
 import argparse
+import os
 
 default_values = \
     {
         "int32": 0,
-        "string": "\"\""
+        "uint32": 0,
+        "sint32": 0,
+        "fixed32": 0.0,
+        "sfixed32": 0.0,
+        "int64": 0,
+        "uint64": 0,
+        "sint64": 0,
+        "fixed64": 0,
+        "sfixed64": 0,
+        "bool": 0,
+        "string": None,
+        "repeated": []
     }
 
 serializers = \
     {
         "int32": "Int32Serializer()",
+        "uint32": "VarintSerializer()",
+        "sint32": "SignedInt32Serializer()",
+        "fixed32": "FloatSerializer()",
+        "sfixed32": "FloatSerializer()",
+        "int64": "Int64Serializer()",
+        "uint64": "VarintSerializer()",
+        "sint64": "SignedInt64Serializer()",
+        "fixed64": "DoubleSerializer()",
+        "sfixed64": "DoubleSerializer()",
+        "bool": "BoolSerializer()",
         "string": "StringSerializer()"
     }
+messages = {}
 
 
-def gen_imports(fields):
-    ans = "from protobuf_types import Message\n"
+def gen_imports(fields, messages):
+    ans = "from protobuf.protobuf_types import Message\n"
     set_types = set()
+    set_message_types = set()
     for f in fields.values():
-        set_types.add(serializers[f[0]][:-2])
+        type_name = f[0]
+        if (type_val := serializers.get(type_name)) is None:
+            if messages.get(type_name) is not None:
+                set_message_types.add(type_name)
+        else:
+            set_types.add(type_val[:-2])
     for t in set_types:
-        ans += f"from protobuf_types import {t}\n"
+        ans += f"from protobuf.protobuf_types import {t}\n"
+    for t in set_message_types:
+        ans += f"from {t}_ptbf import {t}\n"
+
     return ans + "\n\n"
 
 
@@ -27,12 +59,18 @@ def gen_init(fields):
     ans = (" " * 4) + "def __init__(cls):\n"
     ans += (" " * 8) + "super().__init__()\n"
     for f in fields.values():
-        ans += f"" + (" " * 4) + f"" + (" " * 4) + f"cls.{f[1]} = {default_values[f[0]]}\n"
+        if (default := default_values.get(f[0])) is None:
+            default = "None"
+        if f[2]:
+            default = "[]"
+        ans += f"" + (" " * 4) + f"" + (" " * 4) + f"cls.{f[1]} = {default}\n"
 
     ans += (" " * 8) + "cls.fields = \\\n"
     ans += (" " * 12) + "{\n"
     for k, v in fields.items():
-        ans += (" " * 16) + f"{k}: [cls._get_{v[1]}, cls._set_{v[1]}, {serializers[v[0]]}],\n"
+        if (serializer := serializers.get(v[0])) is None:
+            serializer = v[0] + "()"
+        ans += (" " * 16) + f"{k}: [cls._get_{v[1]}, cls._set_{v[1]}, {serializer}, {v[2]}],\n"
     ans = ans[:-2] + "\n"
     ans += (" " * 12) + "}\n"
     return ans
@@ -43,64 +81,77 @@ def gen_getters_setters(fields):
     for f in fields.values():
         ans += f"" + (" " * 4) + f"def _get_{f[1]}(cls):\n" \
                                  f"" + (" " * 4) + f"" + (" " * 4) + f"return cls.{f[1]}\n\n"
-        ans += f"" + (" " * 4) + f"def _set_{f[1]}(cls, val):\n" \
-                                 f"" + (" " * 4) + f"" + (" " * 4) + f"cls.{f[1]} = val\n\n"
+        if f[2]:
+            ans += f"" + (" " * 4) + f"def _set_{f[1]}(cls, val):\n" \
+                                     f"" + (" " * 4) + f"" + (" " * 4) + f"cls.{f[1]}.append(val)\n\n"
+        else:
+            ans += f"" + (" " * 4) + f"def _set_{f[1]}(cls, val):\n" \
+                                     f"" + (" " * 4) + f"" + (" " * 4) + f"cls.{f[1]} = val\n\n"
 
     return ans
 
 
-def gen_class(file_name, class_name, fields):
-    with open(file_name, "w") as f:
-        f.write(gen_imports(fields))
-        f.write(f"class {class_name}(Message):\n")
-        f.write(gen_getters_setters(fields))
-        f.write(gen_init(fields))
+def gen_class(messages, source):
+    for k, v in messages.items():
+        file_name = k + "_ptbf.py"
+        next_class = os.path.join(os.path.split(os.path.abspath(source))[0], file_name)
+        with open(next_class, "w") as f:
+            f.write(gen_imports(v, messages))
+            f.write(f"class {k}(Message):\n")
+            f.write(gen_getters_setters(v))
+            f.write(gen_init(v))
+
+
+def parse_message(data, current_line):
+    fields = {}
+
+    for i, line in enumerate(data[current_line + 1:]):
+        line = line.strip()
+        if line == "":
+            continue
+        if line == "}":
+            return fields, i
+        repeated = False
+        cur_data = line[:-1].split()
+        print(cur_data)
+        if len(cur_data) != 5 or line[-1] != ";":
+            raise RuntimeError(f"wrong format in line {i + 1}")
+        if cur_data[0] == "repeated":
+            repeated = True
+        type_ = cur_data[1]
+        name_ = cur_data[2]
+        index = int(cur_data[4])
+        if fields.get(index) is not None:
+            raise RuntimeError(f"repeated number in line {i + 1}")
+        fields[index] = (type_, name_, repeated)
 
 
 def generate(source):
     with open(source, "r") as f:
         data = f.readlines()
-        started = False
-        finished = False
-        fields = {}
-        class_name = ""
+        end = 0
         for i, line in enumerate(data):
-            if finished:
-                break
+            if i < end:
+                continue
             line = line.strip()
-            if not started:
-                if line.startswith("message"):
-                    cur_data = line.split()
-                    if len(cur_data) > 3:
-                        raise RuntimeError(f"wrong format in line {i + 1}")
-                    started = True
-                    class_name = cur_data[1]
-            else:
-                if line == "":
-                    continue
-                if line == "}":
-                    finished = True
-                    continue
-                cur_data = line[:-1].split()
-                print(cur_data)
-                if len(cur_data) != 5 or line[-1] != ";":
+            if line.startswith("import"):
+                next_source = os.path.join(os.path.split(os.path.abspath(source))[0], line.split()[1][1:-2])
+                generate(next_source)
+            if line.startswith("message"):
+                cur_data = line.split()
+                if len(cur_data) > 3:
                     raise RuntimeError(f"wrong format in line {i + 1}")
+                messages[cur_data[1]], end = parse_message(data, i)
+                class_name = cur_data[1]
 
-                type_ = cur_data[1]
-                name_ = cur_data[2]
-                index = int(cur_data[4])
-
-                if fields.get(index) is not None:
-                    raise RuntimeError(f"repeated number in line {i + 1}")
-                fields[index] = (type_, name_)
-        if len(fields) == 0:
+        if len(messages) == 0:
             return
-        file_name = source.split(".")[0] + "_ptbf.py"
-        gen_class(file_name, class_name, fields)
+
+        return messages
 
 
 if __name__ == '__main__':
     p = argparse.ArgumentParser()
     p.add_argument("-s", "--source", type=str, required=True, help="proto file base on which generate class")
-
     generate(p.parse_args().source)
+    gen_class(messages, p.parse_args().source)
