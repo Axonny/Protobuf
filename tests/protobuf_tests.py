@@ -2,6 +2,7 @@ import unittest
 from protobuf.protobuf_types import *
 
 from tests.TestInner2_ptbf import TestInner2
+from tests.TestInner_ptbf import TestInner
 from tests.TestRepeated_ptbf import TestRepeated
 from tests.Test2_ptbf import Test2
 from tests.TestComplex_ptbf import TestComplex
@@ -77,7 +78,7 @@ class LoadDumpTestCase(unittest.TestCase):
         tc.f = -200
         tc.f = -2.2
         tc.i = "test"
-        embedded = TestInner2()
+        embedded = TestInner()
         embedded.a = 250
         embedded.e = -200
         embedded.f = -3.2
