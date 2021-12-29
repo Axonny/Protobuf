@@ -3,6 +3,9 @@ from protobuf.protobuf_types import *
 
 from tests.TestInner2_ptbf import TestInner2
 from tests.TestRepeated_ptbf import TestRepeated
+from tests.Test2_ptbf import Test2
+from tests.TestComplex_ptbf import TestComplex
+from tests.TestInner2_ptbf import TestInner2
 
 
 class LoadDumpTestCase(unittest.TestCase):
@@ -54,6 +57,41 @@ class LoadDumpTestCase(unittest.TestCase):
         for n, e in zip(numbers, encoded_d):
             cur_e = DoubleSerializer.dump_inner(n)
             self.assertEquals(e, cur_e)
+
+    def test_simple_proto(self):
+        t = Test2()
+        t.c = 150
+        dump = t.dump()
+        self.assertEquals(dump, b'\x08\x96\x01')
+        t2 = Test2()
+        t2.load(BytesIO(dump))
+        self.assertEquals(t.c, t2.c)
+
+    def test_embedded_message(self):
+        tc = TestComplex()
+        tc.a = 150
+        tc.b = 300
+        tc.c = 400
+        tc.d = 800
+        tc.e = -100
+        tc.f = -200
+        tc.f = -2.2
+        tc.i = "test"
+        embedded = TestInner2()
+        embedded.a = 250
+        embedded.e = -200
+        embedded.f = -3.2
+        embedded.i = "test2"
+        tc.t = embedded
+        dump = tc.dump()
+        new_tc = TestComplex()
+        new_tc.load(BytesIO(dump))
+        self.assertEquals(tc.a, new_tc.a)
+        self.assertEquals(tc.b, new_tc.b)
+        self.assertEquals(tc.d, new_tc.d)
+        self.assertEquals(tc.i, new_tc.i)
+        self.assertEquals(embedded.a, new_tc.t.a)
+        self.assertEquals(embedded.i, new_tc.t.i)
 
 
 if __name__ == '__main__':
