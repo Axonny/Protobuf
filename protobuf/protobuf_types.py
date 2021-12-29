@@ -179,8 +179,9 @@ class Message:
         for k, v in self.fields.items():
             if v[3]:
                 for v2 in v[0]():
-                    v[2]._embedded = True
-                    result += bytes([v[2].wire_type + (k << 3)]) + v[2]().dump_inner(v2)
+                    unit = v[2]()
+                    unit._embedded = True
+                    result += bytes([v[2].wire_type + (k << 3)]) + unit.dump_inner(v2)
             else:
                 val = v[0]()
                 if val is not None:
