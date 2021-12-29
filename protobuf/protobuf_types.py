@@ -177,6 +177,7 @@ class Message:
         for k, v in self.fields.items():
             if v[3]:
                 for v2 in v[0]():
+                    v[2]._embedded = True
                     result += bytes([v[2].wire_type + (k << 3)]) + v[2].dump_inner(v2)
             else:
                 val = v[0]()
@@ -191,7 +192,7 @@ class Message:
         value._embedded = self._embedded
         return value.dump()
 
-    def load(self, bytes_io: BytesIO) -> None:
+    def load(self, bytes_io: BytesIO):
         with bytes_io as io:
             while _byte := io.read(1):
                 b = int.from_bytes(_byte, "big")

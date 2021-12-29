@@ -21,12 +21,12 @@ default_values = \
 serializers = \
     {
         "int32": "Int32Serializer()",
-        "uint32": "VarintSerializer()",
+        "uint32": "Int32Serializer()",
         "sint32": "SignedInt32Serializer()",
         "fixed32": "FloatSerializer()",
         "sfixed32": "FloatSerializer()",
         "int64": "Int64Serializer()",
-        "uint64": "VarintSerializer()",
+        "uint64": "Int64Serializer()",
         "sint64": "SignedInt64Serializer()",
         "fixed64": "DoubleSerializer()",
         "sfixed64": "DoubleSerializer()",
