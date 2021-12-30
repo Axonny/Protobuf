@@ -10,12 +10,9 @@ from tests.TestInner2_ptbf import TestInner2
 
 class LoadDumpTestCase(unittest.TestCase):
     def test_repeated(self):
-        s = TestRepeated()
-        s.d = [2, 100, 1000]
-        in1 = TestInner2()
-        in1.c = [100, 10000]
-        in2 = TestInner2()
-        in2.c = [9, 99999]
+        s = TestRepeated(d=[2, 100, 1000])
+        in1 = TestInner2(c=[100, 10000])
+        in2 = TestInner2(c=[9, 99999])
         s.f = [in1, in2]
         f = TestRepeated.loads(s.dumps())
 
@@ -58,27 +55,15 @@ class LoadDumpTestCase(unittest.TestCase):
             self.assertEquals(e, cur_e)
 
     def test_simple_proto(self):
-        t = Test2()
-        t.c = 150
+        t = Test2(c=150)
         dump = t.dumps()
         self.assertEquals(dump, b'\x08\x96\x01')
         t2 = Test2.loads(dump)
         self.assertEquals(t.c, t2.c)
 
     def test_embedded_message(self):
-        tc = TestComplex()
-        tc.a = 150
-        tc.b = 300
-        tc.c = 400
-        tc.d = 800
-        tc.e = -100
-        tc.f = -2.2
-        tc.i = "test"
-        embedded = TestInner()
-        embedded.a = 250
-        embedded.e = -200
-        embedded.f = -3.2
-        embedded.i = "test2"
+        tc = TestComplex(a=150, b=300, c=400, d=800, e=-100, f=-2.2, i="test")
+        embedded = TestInner(a=250, e=-200, f=-3.2, i="test2")
         tc.t = embedded
         dump = tc.dumps()
         new_tc = TestComplex.loads(dump)

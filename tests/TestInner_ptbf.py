@@ -1,11 +1,11 @@
 from protobuf.protobuf_types import Message
+from protobuf.protobuf_types import Int32Serializer
 from protobuf.protobuf_types import SignedInt32Serializer
+from protobuf.protobuf_types import DoubleSerializer
+from protobuf.protobuf_types import StringSerializer
+from protobuf.protobuf_types import Int64Serializer
 from protobuf.protobuf_types import FloatSerializer
 from protobuf.protobuf_types import BoolSerializer
-from protobuf.protobuf_types import Int64Serializer
-from protobuf.protobuf_types import StringSerializer
-from protobuf.protobuf_types import Int32Serializer
-from protobuf.protobuf_types import DoubleSerializer
 
 
 class TestInner(Message):

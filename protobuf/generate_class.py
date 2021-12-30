@@ -164,9 +164,9 @@ def generate(source):
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("-s", "--source", type=str, required=True, help="proto file base on which generate class")
-    generate(p.parse_args().source)
-    gen_class(messages, p.parse_args().source)
+    p.add_argument("-c", "--compile", type=str, required=True, help="path to proto file base on which generate class")
+    generate(p.parse_args().compile)
+    gen_class(messages, p.parse_args().compile)
 
 
 if __name__ == '__main__':

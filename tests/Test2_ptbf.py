@@ -3,16 +3,16 @@ from protobuf.protobuf_types import Int32Serializer
 
 
 class Test2(Message):
-    def _get_c(cls):
-        return cls.c
+    def _get_c(self):
+        return self.c
 
-    def _set_c(cls, val):
-        cls.c = val
+    def _set_c(self, val):
+        self.c = val
 
-    def __init__(cls):
+    def __init__(self, c=0):
         super().__init__()
-        cls.c = 0
-        cls.fields = \
+        self.c = c
+        self.fields = \
             {
-                1: [cls._get_c, cls._set_c, Int32Serializer, False]
+                1: [self._get_c, self._set_c, Int32Serializer, False]
             }

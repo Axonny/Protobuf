@@ -10,7 +10,29 @@ message Simple {
 }
 ```
 
-2. Call `python3.10 -m protobuf -s simple.proto`. You will get `Simple_ptbf.py` file
+2. Call `python3.10 -m protobuf -c simple.proto`. You will get `Simple_ptbf.py` file
+
+```python
+from protobuf.protobuf_types import Message
+from protobuf.protobuf_types import Int32Serializer
+
+
+class Simple(Message):
+    def _get_simple_int(self):
+        return self.simple_int
+
+    def _set_simple_int(self, val):
+        self.simple_int = val
+
+    def __init__(self, simple_int=0):
+        super().__init__()
+        self.simple_int = simple_int
+        self.fields = \
+            {
+                1: [self._get_simple_int, self._set_simple_int, Int32Serializer, False]
+            }
+
+```
 
 3. Import generated class to your code
 
@@ -43,11 +65,16 @@ s = Simple.load(open('proto_dump', 'rb'))
 
 ## Generate
 
-```
-usage: generate_class.py [-h] -s SOURCE
+```text
+usage: generate_class.py [-h] -c COMPILE
 
 options:
   -h, --help            show this help message and exit
-  -s SOURCE, --source SOURCE
-                        proto file base on which generate class
+  -c COMPILE, --compile COMPILE
+                        path to proto file base on which generate class
+```
+
+### Example
+```text
+python3.10 -m protobuf -c simple.proto
 ```

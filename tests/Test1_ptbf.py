@@ -5,40 +5,40 @@ from Test2_ptbf import Test2
 
 
 class Test1(Message):
-    def _get_a(cls):
-        return cls.a
+    def _get_a(self):
+        return self.a
 
-    def _set_a(cls, val):
-        cls.a = val
+    def _set_a(self, val):
+        self.a = val
 
-    def _get_b(cls):
-        return cls.b
+    def _get_b(self):
+        return self.b
 
-    def _set_b(cls, val):
-        cls.b = val
+    def _set_b(self, val):
+        self.b = val
 
-    def _get_c(cls):
-        return cls.c
+    def _get_c(self):
+        return self.c
 
-    def _set_c(cls, val):
-        cls.c = val
+    def _set_c(self, val):
+        self.c = val
 
-    def _get_d(cls):
-        return cls.d
+    def _get_d(self):
+        return self.d
 
-    def _set_d(cls, val):
-        cls.d.append(val)
+    def _set_d(self, val):
+        self.d.append(val)
 
-    def __init__(cls):
+    def __init__(self, a=0, b=None, c=None, d=None):
         super().__init__()
-        cls.a = 0
-        cls.b = None
-        cls.c = None
-        cls.d = []
-        cls.fields = \
+        self.a = a
+        self.b = b
+        self.c = c
+        self.d = [] if d is None else d
+        self.fields = \
             {
-                1: [cls._get_a, cls._set_a, Int32Serializer, False],
-                2: [cls._get_b, cls._set_b, StringSerializer, False],
-                3: [cls._get_c, cls._set_c, Test2, False],
-                4: [cls._get_d, cls._set_d, Int32Serializer, True]
+                1: [self._get_a, self._set_a, Int32Serializer, False],
+                2: [self._get_b, self._set_b, StringSerializer, False],
+                3: [self._get_c, self._set_c, Test2, False],
+                4: [self._get_d, self._set_d, Int32Serializer, True]
             }
