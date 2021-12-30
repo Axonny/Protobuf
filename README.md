@@ -10,7 +10,7 @@ message Simple {
 }
 ```
 
-2. Call `python3.10 generate_class.py simple.proto`. You will get `Simple_ptbf.py` file
+2. Call `python3.10 -m protobuf -s simple.proto`. You will get `Simple_ptbf.py` file
 
 3. Import generated class to your code
 

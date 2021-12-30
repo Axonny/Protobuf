@@ -154,8 +154,12 @@ def generate(source):
         return messages
 
 
-if __name__ == '__main__':
+def main():
     p = argparse.ArgumentParser()
     p.add_argument("-s", "--source", type=str, required=True, help="proto file base on which generate class")
     generate(p.parse_args().source)
     gen_class(messages, p.parse_args().source)
+
+
+if __name__ == '__main__':
+    main()
