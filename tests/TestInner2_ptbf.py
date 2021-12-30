@@ -11,7 +11,7 @@ class TestInner2(Message):
 
     def __init__(self, c=[]):
         super().__init__()
-        self.c = c
+        self.c = [] if len(c) == 0 else c
         self.fields = \
             {
                 1: [self._get_c, self._set_c, Int32Serializer, True]

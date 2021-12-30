@@ -18,8 +18,8 @@ class TestRepeated(Message):
 
     def __init__(self, d=[], f=[]):
         super().__init__()
-        self.d = d
-        self.f = f
+        self.d = [] if len(d) == 0 else d
+        self.f = [] if len(f) == 0 else f
         self.fields = \
             {
                 4: [self._get_d, self._set_d, Int32Serializer, True],
