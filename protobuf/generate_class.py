@@ -125,7 +125,6 @@ def parse_message(data, current_line):
             return fields, i
         repeated = False
         cur_data = line[:-1].split()
-        print(cur_data)
         if len(cur_data) != 5 or line[-1] != ";":
             raise RuntimeError(f"wrong format in line {i + 1}")
         if cur_data[0] == "repeated":
