@@ -72,8 +72,7 @@ def gen_init(fields):
     ans = (" " * 4) + f"def __init__(self, {init_default}):\n"
     ans += (" " * 8) + "super().__init__()\n"
     for f in fields.values():
-        if (default := default_values.get(f[0])) is None:
-            default = f[1]
+        default = f[1]
         if f[2]:
             default = f"[] if {f[1]} is None else {f[1]}"
         ans += f"" + (" " * 4) + f"" + (" " * 4) + f"self.{f[1]} = {default}\n"

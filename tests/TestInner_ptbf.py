@@ -1,11 +1,11 @@
 from protobuf.protobuf_types import Message
-from protobuf.protobuf_types import Int32Serializer
-from protobuf.protobuf_types import StringSerializer
-from protobuf.protobuf_types import BoolSerializer
 from protobuf.protobuf_types import SignedInt32Serializer
-from protobuf.protobuf_types import Int64Serializer
-from protobuf.protobuf_types import DoubleSerializer
 from protobuf.protobuf_types import FloatSerializer
+from protobuf.protobuf_types import BoolSerializer
+from protobuf.protobuf_types import Int64Serializer
+from protobuf.protobuf_types import StringSerializer
+from protobuf.protobuf_types import Int32Serializer
+from protobuf.protobuf_types import DoubleSerializer
 
 
 class TestInner(Message):
@@ -63,17 +63,17 @@ class TestInner(Message):
     def _set_i(self, val):
         self.i = val
 
-    def __init__(self, self.a=0, self.b=0, self.c=0, self.d=0, self.e=0, self.f=0.0, self.g=0.0, self.h=0, self.i=None):
+    def __init__(self, a=0, b=0, c=0, d=0, e=0, f=0.0, g=0.0, h=0, i=None):
         super().__init__()
-        self.a = 0
-        self.b = 0
-        self.c = 0
-        self.d = 0
-        self.e = 0
-        self.f = 0.0
-        self.g = 0.0
-        self.h = 0
-        self.i = None
+        self.a = a
+        self.b = b
+        self.c = c
+        self.d = d
+        self.e = e
+        self.f = f
+        self.g = g
+        self.h = h
+        self.i = i
         self.fields = \
             {
                 1: [self._get_a, self._set_a, Int32Serializer, False],
