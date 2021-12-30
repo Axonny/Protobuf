@@ -1,11 +1,11 @@
 from protobuf.protobuf_types import Message
-from protobuf.protobuf_types import DoubleSerializer
-from protobuf.protobuf_types import BoolSerializer
-from protobuf.protobuf_types import FloatSerializer
 from protobuf.protobuf_types import Int32Serializer
-from protobuf.protobuf_types import SignedInt32Serializer
 from protobuf.protobuf_types import StringSerializer
+from protobuf.protobuf_types import BoolSerializer
+from protobuf.protobuf_types import SignedInt32Serializer
 from protobuf.protobuf_types import Int64Serializer
+from protobuf.protobuf_types import DoubleSerializer
+from protobuf.protobuf_types import FloatSerializer
 
 
 class TestInner(Message):
@@ -63,7 +63,7 @@ class TestInner(Message):
     def _set_i(self, val):
         self.i = val
 
-    def __init__(self):
+    def __init__(self, self.a=0, self.b=0, self.c=0, self.d=0, self.e=0, self.f=0.0, self.g=0.0, self.h=0, self.i=None):
         super().__init__()
         self.a = 0
         self.b = 0

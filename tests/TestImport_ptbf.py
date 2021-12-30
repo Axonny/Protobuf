@@ -1,6 +1,6 @@
 from protobuf.protobuf_types import Message
-from protobuf.protobuf_types import StringSerializer
 from protobuf.protobuf_types import Int32Serializer
+from protobuf.protobuf_types import StringSerializer
 from TestInner2_ptbf import TestInner2
 
 
@@ -23,7 +23,7 @@ class TestImport(Message):
     def _set_c(self, val):
         self.c = val
 
-    def __init__(self):
+    def __init__(self, a=0, b=None, c=None):
         super().__init__()
         self.a = 0
         self.b = None

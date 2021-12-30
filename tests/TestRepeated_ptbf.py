@@ -16,7 +16,7 @@ class TestRepeated(Message):
     def _set_f(self, val):
         self.f.append(val)
 
-    def __init__(self):
+    def __init__(self, d=[], f=[]):
         super().__init__()
         self.d = []
         self.f = []

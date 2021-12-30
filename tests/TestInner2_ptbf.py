@@ -9,7 +9,7 @@ class TestInner2(Message):
     def _set_c(self, val):
         self.c.append(val)
 
-    def __init__(self):
+    def __init__(self, c=[]):
         super().__init__()
         self.c = []
         self.fields = \
