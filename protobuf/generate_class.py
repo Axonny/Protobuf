@@ -60,21 +60,21 @@ def gen_imports(fields, messages):
 
 
 def gen_init(fields):
-    ans = (" " * 4) + "def __init__(self):\n"
+    ans = (" " * 4) + "def __init__(cls):\n"
     ans += (" " * 8) + "super().__init__()\n"
     for f in fields.values():
         if (default := default_values.get(f[0])) is None:
             default = "None"
         if f[2]:
             default = "[]"
-        ans += f"" + (" " * 4) + f"" + (" " * 4) + f"self.{f[1]} = {default}\n"
+        ans += f"" + (" " * 4) + f"" + (" " * 4) + f"cls.{f[1]} = {default}\n"
 
-    ans += (" " * 8) + "self.fields = \\\n"
+    ans += (" " * 8) + "cls.fields = \\\n"
     ans += (" " * 12) + "{\n"
     for k, v in fields.items():
         if (serializer := serializers.get(v[0])) is None:
             serializer = v[0]
-        ans += (" " * 16) + f"{k}: [self._get_{v[1]}, self._set_{v[1]}, {serializer}, {v[2]}],\n"
+        ans += (" " * 16) + f"{k}: [cls._get_{v[1]}, cls._set_{v[1]}, {serializer}, {v[2]}],\n"
     ans = ans[:-2] + "\n"
     ans += (" " * 12) + "}\n"
     return ans
@@ -83,14 +83,14 @@ def gen_init(fields):
 def gen_getters_setters(fields):
     ans = ""
     for f in fields.values():
-        ans += f"" + (" " * 4) + f"def _get_{f[1]}(self):\n" \
-                                 f"" + (" " * 4) + f"" + (" " * 4) + f"return self.{f[1]}\n\n"
+        ans += f"" + (" " * 4) + f"def _get_{f[1]}(cls):\n" \
+                                 f"" + (" " * 4) + f"" + (" " * 4) + f"return cls.{f[1]}\n\n"
         if f[2]:
-            ans += f"" + (" " * 4) + f"def _set_{f[1]}(self, val):\n" \
-                                     f"" + (" " * 4) + f"" + (" " * 4) + f"self.{f[1]}.append(val)\n\n"
+            ans += f"" + (" " * 4) + f"def _set_{f[1]}(cls, val):\n" \
+                                     f"" + (" " * 4) + f"" + (" " * 4) + f"cls.{f[1]}.append(val)\n\n"
         else:
-            ans += f"" + (" " * 4) + f"def _set_{f[1]}(self, val):\n" \
-                                     f"" + (" " * 4) + f"" + (" " * 4) + f"self.{f[1]} = val\n\n"
+            ans += f"" + (" " * 4) + f"def _set_{f[1]}(cls, val):\n" \
+                                     f"" + (" " * 4) + f"" + (" " * 4) + f"cls.{f[1]} = val\n\n"
 
     return ans
 

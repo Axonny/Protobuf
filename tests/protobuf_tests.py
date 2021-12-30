@@ -17,8 +17,7 @@ class LoadDumpTestCase(unittest.TestCase):
         in2 = TestInner2()
         in2.c = [9, 99999]
         s.f = [in1, in2]
-        f = TestRepeated()
-        f.load(BytesIO(s.dump()))
+        f = TestRepeated.loads(s.dumps())
 
         self.assertEqual(s.d, f.d)
         self.assertEqual(s.f[0].c, f.f[0].c)
@@ -61,10 +60,9 @@ class LoadDumpTestCase(unittest.TestCase):
     def test_simple_proto(self):
         t = Test2()
         t.c = 150
-        dump = t.dump()
+        dump = t.dumps()
         self.assertEquals(dump, b'\x08\x96\x01')
-        t2 = Test2()
-        t2.load(BytesIO(dump))
+        t2 = Test2.loads(dump)
         self.assertEquals(t.c, t2.c)
 
     def test_embedded_message(self):
@@ -82,9 +80,8 @@ class LoadDumpTestCase(unittest.TestCase):
         embedded.f = -3.2
         embedded.i = "test2"
         tc.t = embedded
-        dump = tc.dump()
-        new_tc = TestComplex()
-        new_tc.load(BytesIO(dump))
+        dump = tc.dumps()
+        new_tc = TestComplex.loads(dump)
         self.assertEquals(tc.a, new_tc.a)
         self.assertEquals(tc.b, new_tc.b)
         self.assertEquals(tc.d, new_tc.d)

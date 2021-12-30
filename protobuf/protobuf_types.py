@@ -174,7 +174,7 @@ class Message:
         self.fields = {}
         self._embedded = False
 
-    def dump(self):
+    def dumps(self):
         result = bytes()
         for k, v in self.fields.items():
             if v[3]:
@@ -192,20 +192,29 @@ class Message:
             result = VarintSerializer.dump_inner(len(result)) + result
         return result
 
+    def dump(self, io: BytesIO):
+        io.write(self.dumps())
+
     def dump_inner(self, value):
         value._embedded = self._embedded
-        return value.dump()
+        return value.dumps()
 
-    def load(self, bytes_io: BytesIO):
+    @classmethod
+    def load(cls, bytes_io: BytesIO):
+        obj = cls()
         with bytes_io as io:
             while _byte := io.read(1):
                 b = int.from_bytes(_byte, "big")
                 number, wire_type = b >> 3, b % 8
                 data = None
                 if wire_type in [0, 1, 5]:
-                    data = self.fields[number][2].load(io)
+                    data = obj.fields[number][2].load(io)
                 if wire_type == 2:
                     length = VarintSerializer.load(io)
-                    data = self.fields[number][2]().load(BytesIO(io.read(length)))
-                self.fields[number][1](data)
-        return self
+                    data = obj.fields[number][2]().load(BytesIO(io.read(length)))
+                obj.fields[number][1](data)
+        return obj
+
+    @classmethod
+    def loads(cls, byte_str: bytes):
+        return cls.load(BytesIO(byte_str))
