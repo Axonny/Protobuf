@@ -25,9 +25,9 @@ class TestImport(Message):
 
     def __init__(self, a=0, b=None, c=None):
         super().__init__()
-        self.a = 0
-        self.b = None
-        self.c = None
+        self.a = a
+        self.b = b
+        self.c = c
         self.fields = \
             {
                 1: [self._get_a, self._set_a, Int32Serializer, False],

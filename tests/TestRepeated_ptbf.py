@@ -18,8 +18,8 @@ class TestRepeated(Message):
 
     def __init__(self, d=[], f=[]):
         super().__init__()
-        self.d = []
-        self.f = []
+        self.d = d
+        self.f = f
         self.fields = \
             {
                 4: [self._get_d, self._set_d, Int32Serializer, True],
