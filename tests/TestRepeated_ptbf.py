@@ -16,10 +16,10 @@ class TestRepeated(Message):
     def _set_f(self, val):
         self.f.append(val)
 
-    def __init__(self, d=[], f=[]):
+    def __init__(self, d=None, f=None):
         super().__init__()
-        self.d = [] if len(d) == 0 else d
-        self.f = [] if len(f) == 0 else f
+        self.d = [] if d is None else d
+        self.f = [] if f is None else f
         self.fields = \
             {
                 4: [self._get_d, self._set_d, Int32Serializer, True],

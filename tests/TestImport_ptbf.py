@@ -1,6 +1,6 @@
 from protobuf.protobuf_types import Message
-from protobuf.protobuf_types import StringSerializer
 from protobuf.protobuf_types import Int32Serializer
+from protobuf.protobuf_types import StringSerializer
 from TestInner2_ptbf import TestInner2
 
 

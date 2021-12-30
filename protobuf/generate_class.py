@@ -66,7 +66,7 @@ def gen_init(fields):
         if (default := default_values.get(f[0])) is None:
             default = "None"
         if f[2]:
-            default = "[]"
+            default = "None"
         init_default += f"{f[1]}={default}, "
     init_default = init_default[:-2]
     ans = (" " * 4) + f"def __init__(self, {init_default}):\n"
@@ -75,7 +75,7 @@ def gen_init(fields):
         if (default := default_values.get(f[0])) is None:
             default = f[1]
         if f[2]:
-            default = f"[] if len({f[1]}) == 0 else {f[1]}"
+            default = f"[] if {f[1]} is None else {f[1]}"
         ans += f"" + (" " * 4) + f"" + (" " * 4) + f"self.{f[1]} = {default}\n"
 
     ans += (" " * 8) + "self.fields = \\\n"

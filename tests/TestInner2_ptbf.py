@@ -9,9 +9,9 @@ class TestInner2(Message):
     def _set_c(self, val):
         self.c.append(val)
 
-    def __init__(self, c=[]):
+    def __init__(self, c=None):
         super().__init__()
-        self.c = [] if len(c) == 0 else c
+        self.c = [] if c is None else c
         self.fields = \
             {
                 1: [self._get_c, self._set_c, Int32Serializer, True]
